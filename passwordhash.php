@@ -49,6 +49,6 @@ if (!empty($_POST['submit'])) {
 }
 ?>
 <?php } ?>
-<?php } else echo '<p>PHP below 5.5.0 cannot use the password_hash function.</p>' ?>
+<?php } else echo '<p>PHP below 5.5.0 cannot use the password_hash() function.</p>' ?>
 </body>
 </html>
