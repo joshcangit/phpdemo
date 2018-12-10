@@ -17,15 +17,16 @@ $db = new DB;
 // with a variables and single value returned
 $stmt = $db->mysqli->prepare("SELECT * FROM users WHERE username='$username'");
 $stmt->execute();
-$user = $stmt->fetch_assoc();
+$user = $stmt->get_result()->fetch_assoc();
+$stmt->close();
 echo $user['username'];
-
 
 // without variables and getting multiple rows
 $result = $db->mysqli->query("SELECT * FROM users ORDER BY id ASC");
 while ($row=$result->fetch_assoc()) {
     $users[] = $row;
 }
+$result->close();
 print_r($users);
 ```
 
@@ -40,6 +41,8 @@ class User extends DB {
         //insert with getting insert id
         $stmt = $this->mysqli->prepare("INSERT INTO customers(username, password, email) VALUES ('$username', '$password', '$email')");
         $stmt->execute();
+        return $stmt->insert_id;
+        $stmt->close();
     }
 ```
 
@@ -52,21 +55,22 @@ require_once 'user.php'
 $inst = new User;
 //Function call
 $new_user = signup($username, $password, $email);
+echo $new_user;
 ```
 
 **Note:** Here, you have to include **both** files for this to work. This method is used to put other functions outside of the shared *db.php* class file.
 
 ### Using the provided `mysqli()` function
 
+This is based off of the code in [Mysqli made simple](https://phpdelusions.net/mysqli/simple) at [phpdelusions.net](https://phpdelusions.net/).
+
 ```php
 // with 2 variables and 1 row returned
-$stmt = $db->mysqli("SELECT * FROM users WHERE username=? OR email=?", [$username, $email], "ss");
-$user = $stmt->fetch_row();
-print_r($user);
+$user = $db->mysqli("SELECT * FROM users WHERE username=? OR email=?", [$username, $email], "ss")->get_result()->fetch_row();
+print_r($stmt);
 
 // with 1 variable and single value returned
-$stmt = $db->mysqli("SELECT * FROM users WHERE username=?", [$username], "s");
-$user = $stmt->fetch_assoc();
+$user = $db->mysqli("SELECT * FROM users WHERE username=?", [$username], "s")->get_result()->fetch_assoc();
 echo $user['username'];
 
 // without variables and getting multiple rows
@@ -78,6 +82,7 @@ print_r($users);
 
 //insert with getting insert id
 $stmt = $this->mysqli("INSERT INTO customers(username, password, email) VALUES (?, ?, ?)", [$username, $password, $email], "sss");
+echo $stmt->insert_id;
 ```
 
 **Notes:**
@@ -96,6 +101,7 @@ As of PHP 5.4 you can also use the short array syntax, which replaces
 ```php
 //insert with getting insert id
 $stmt = $this->mysqli("INSERT INTO customers(username, password, email) VALUES (?, ?, ?)", array($username, $password, $email), "sss");
+echo $stmt->insert_id;
 ```
 
 ### Backwards compatibility

@@ -15,10 +15,10 @@ class DB {
 		mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT); // Set report functions
 		return new mysqli($this->host,$this->user,$this->password,$this->database);
 	}
-    //https://phpdelusions.net/mysqli/simple
+
     function mysqli($sql, $params = array(), $types = "") {
         if (!$params) {
-            return $this->mysqli->query($sql);
+            $stmt = $this->mysqli->query($sql);
         } else {
             $stmt = $this->mysqli->prepare($sql);
             if (!$types) $types = $types ?: str_repeat("s", count($params)); // Default to string if undefined
@@ -32,8 +32,9 @@ class DB {
                 call_user_func_array(array($stmt, 'bind_param'), $bind_array);
             }
             $stmt->execute();
-            return $stmt;
         }
+		return $stmt;
+		$stmt->close();
     }
 }
 ?>
