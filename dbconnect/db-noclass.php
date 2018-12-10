@@ -26,7 +26,6 @@ function mysqli($mysqli, $sql, $params = array(), $types = "") {
         }
         mysqli_stmt_execute($stmt);
         return $stmt;
-        mysqli_stmt_close($stmt);
     }
 }
 ?>
