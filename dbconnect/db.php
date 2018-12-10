@@ -3,7 +3,7 @@ class DB {
 	private $host = "localhost"; //Check your MySQL configuration. It may be different.
 	private $user = "root"; //Should be different if database is owned by another user.
 	private $password = ""; //Password is blank by default on XAMPP.
-	private $database = "database"; //Allows you to perform queries without `database.table` format.
+	private $database = ""; //Allows you to perform queries without `database.table` format.
 
 	function __construct() {
 		$this->mysqli = $this->connect();
