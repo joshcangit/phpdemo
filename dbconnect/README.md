@@ -155,22 +155,21 @@ This time is simpler.
 
 ```php
 // with 2 variables and 1 row returned
-$user = mysqli("SELECT * FROM users WHERE username=? OR email=?", [$username, $email], "ss")->get_result()->fetch_row();
+$user = mysqli($mysqli, "SELECT * FROM users WHERE username=? OR email=?", [$username, $email], "ss")->get_result()->fetch_row();
 print_r($stmt);
 
 // with 1 variable and single value returned
-$user = mysqli("SELECT * FROM users WHERE username=?", [$username], "s")->get_result()->fetch_assoc();
+$user = mysqli($mysqli, "SELECT * FROM users WHERE username=?", [$username], "s")->get_result()->fetch_assoc();
 echo $user['username'];
 
 // without variables and getting multiple rows
-$result = mysqli("SELECT * FROM users ORDER BY id ASC");
+$result = mysqli($mysqli, "SELECT * FROM users ORDER BY id ASC");
 while ($row=$result->fetch_assoc()) {
     $users[] = $row;
 }
 print_r($users);
 
 //insert with getting insert id
-$stmt = mysqli("INSERT INTO customers(username, password, email) VALUES (?, ?, ?)", [$username, $password, $email], "sss");
+$stmt = mysqli($mysqli, "INSERT INTO customers(username, password, email) VALUES (?, ?, ?)", [$username, $password, $email], "sss");
 echo $stmt->insert_id;
 ```
-
