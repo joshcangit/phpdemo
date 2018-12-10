@@ -1,13 +1,13 @@
-# Object-Oriented MySQLi Connection
+# Object Oriented MySQLi Connection
 
-Object-Oriented MySQLi connection with multiple methods of usage.
+Object oriented MySQLi connection with multiple methods of usage.
 
 Although this code *should* function in earlier versions of PHP, it is recommended to use [supported PHP versions](https://secure.php.net/supported-versions.php).
 **Unless with legitimate reason to continue using unsupported version of PHP, please upgrade as soon as possible.**
 
 ## Usage
 
-### Basic querying
+### Basic query examples
 
 ```php
 <?php
@@ -66,15 +66,15 @@ This is based off of the code in [Mysqli made simple](https://phpdelusions.net/m
 
 ```php
 // with 2 variables and 1 row returned
-$user = $db->mysqli("SELECT * FROM users WHERE username=? OR email=?", [$username, $email], "ss")->get_result()->fetch_row();
+$user = $this->mysqli("SELECT * FROM users WHERE username=? OR email=?", [$username, $email], "ss")->get_result()->fetch_row();
 print_r($stmt);
 
 // with 1 variable and single value returned
-$user = $db->mysqli("SELECT * FROM users WHERE username=?", [$username], "s")->get_result()->fetch_assoc();
+$user = $this->mysqli("SELECT * FROM users WHERE username=?", [$username], "s")->get_result()->fetch_assoc();
 echo $user['username'];
 
 // without variables and getting multiple rows
-$result = $db->mysqli("SELECT * FROM users ORDER BY id ASC");
+$result = $this->mysqli("SELECT * FROM users ORDER BY id ASC");
 while ($row=$result->fetch_assoc()) {
     $users[] = $row;
 }
@@ -109,3 +109,66 @@ echo $stmt->insert_id;
 There is an `if-else` statement which checks against version [5.6](https://secure.php.net/migration56.new-features) which introduces [argument unpacking using `...`](https://wiki.php.net/rfc/argument_unpacking) also known as the spread operator in JavaScript. The [`foreach`](https://secure.php.net/manual/en/control-structures.foreach.php) loop and [`call_user_func_array()`](https://secure.php.net/manual/en/function.call-user-func-array.php) used for older versions is referenced from [here at Stack Overflow](https://stackoverflow.com/questions/1913899/mysqli-binding-params-using-call-user-func-array).
 
 There are also [array()](https://secure.php.net/manual/en/language.types.array.php#language.types.array.syntax.array-func) functions for compatibility with PHP before version [5.4](https://secure.php.net/migration54.new-features).
+
+
+
+### One more thing:
+
+There is a procedural version without using any class. This changes both making queries and using the `mysqli()` function.
+
+### Basic query example but not class-based
+
+#### Start
+
+```php
+<?php
+require_once 'db.php';
+```
+
+#### Object oriented style
+
+```php
+// with a variables and single value returned
+$stmt = $mysqli->prepare("SELECT * FROM users WHERE username='$username'");
+$stmt->execute();
+$user = $stmt->get_result()->fetch_assoc();
+$stmt->close();
+echo $user['username'];
+```
+
+#### Procedural style
+
+```php
+// with a variables and single value returned
+$stmt = mysqli_prepare($mysqli, "SELECT * FROM users WHERE username='$username'");
+mysqli_stmt_execute($stmt);
+$user = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
+mysqli_stmt_close($stmt);
+echo $user['username'];
+```
+
+### Using the provided `mysqli()` function
+
+This time is simpler.
+
+```php
+// with 2 variables and 1 row returned
+$user = mysqli("SELECT * FROM users WHERE username=? OR email=?", [$username, $email], "ss")->get_result()->fetch_row();
+print_r($stmt);
+
+// with 1 variable and single value returned
+$user = mysqli("SELECT * FROM users WHERE username=?", [$username], "s")->get_result()->fetch_assoc();
+echo $user['username'];
+
+// without variables and getting multiple rows
+$result = mysqli("SELECT * FROM users ORDER BY id ASC");
+while ($row=$result->fetch_assoc()) {
+    $users[] = $row;
+}
+print_r($users);
+
+//insert with getting insert id
+$stmt = mysqli("INSERT INTO customers(username, password, email) VALUES (?, ?, ?)", [$username, $password, $email], "sss");
+echo $stmt->insert_id;
+```
+
