@@ -118,6 +118,8 @@ There is a procedural version without using any class. This changes both making 
 
 ### Basic query example but not class-based
 
+Rename the *db-noclass.php* file to *db.php*.
+
 #### Start
 
 ```php
