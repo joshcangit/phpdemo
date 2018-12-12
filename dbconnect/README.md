@@ -2,6 +2,12 @@
 
 Object oriented MySQLi connection with multiple methods of usage.
 
+## Introduction
+
+The connection is made using `new mysqli()` or  `mysqli_connect()`. Check out the examples on making database connection with [`mysqli::__construct()`](https://secure.php.net/manual/en/mysqli.construct.php#refsect1-mysqli.construct-examples) in the PHP documentation.
+
+The few lines right before the connection make sure errors are reported in the page even without `die()` or `try-catch` in the code. No need at all to change any settings. This guide on [how to report errors in mysqli](https://phpdelusions.net/mysqli/error_reporting) at *phpdelusions.net* explains this.
+
 Although this code *should* function in earlier versions of PHP, it is recommended to use [supported PHP versions](https://secure.php.net/supported-versions.php).
 **Unless with legitimate reason to continue using unsupported version of PHP, please upgrade as soon as possible.**
 
@@ -62,7 +68,7 @@ echo $new_user;
 
 ### Using the provided `mysqli()` function
 
-This is based off of the code in [Mysqli made simple](https://phpdelusions.net/mysqli/simple) at [phpdelusions.net](https://phpdelusions.net/).
+This is based off of the code in [Mysqli made simple](https://phpdelusions.net/mysqli/simple) at *phpdelusions.net*.
 
 ```php
 // with 2 variables and 1 row returned
@@ -96,7 +102,7 @@ echo $ins_id;
 
 This function is meant to be used **only** with [prepared statements](https://secure.php.net/manual/en/mysqli.quickstart.prepared-statements.php). This is done in MySQLi using anonymous, positional placeholders with *?*.
 
-Therefore, types for [bind_param()](https://secure.php.net/manual/en/mysqli-stmt.bind-param.php) have to be specified as shown at function call. If the third argument, `$types`, is not defined, this `mysqli()` function will default to the type **s** as in *string* for each variable which can break your query especially if any of the columns in the table specified in the query are of *int*, *float* or *double* data type.
+Therefore, types for [`bind_param()`](https://secure.php.net/manual/en/mysqli-stmt.bind-param.php) have to be specified as shown at function call. If the third argument, `$types`, is not defined, this `mysqli()` function will default to the type **s** as in *string* for each variable which can break your query especially if any of the columns in the table specified in the query are of *int*, *float* or *double* data type.
 
 The variables have to be in an **array** even if there is only 1 variable.
 
@@ -117,7 +123,7 @@ echo $ins_id;
 
 There is an `if-else` statement which checks against version [5.6](https://secure.php.net/migration56.new-features) which introduces [argument unpacking using `...`](https://wiki.php.net/rfc/argument_unpacking) also known as the spread operator in JavaScript. The [`foreach`](https://secure.php.net/manual/en/control-structures.foreach.php) loop and [`call_user_func_array()`](https://secure.php.net/manual/en/function.call-user-func-array.php) used for older versions is referenced from [here at Stack Overflow](https://stackoverflow.com/questions/1913899/mysqli-binding-params-using-call-user-func-array).
 
-There are also [array()](https://secure.php.net/manual/en/language.types.array.php#language.types.array.syntax.array-func) functions for compatibility with PHP before version [5.4](https://secure.php.net/migration54.new-features).
+There are also [`array()`](https://secure.php.net/manual/en/language.types.array.php#language.types.array.syntax.array-func) functions for compatibility with PHP before version [5.4](https://secure.php.net/migration54.new-features).
 
 
 
