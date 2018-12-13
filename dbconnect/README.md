@@ -121,13 +121,15 @@ echo $ins_id;
 
 ### Backwards compatibility
 
-There is an `if-else` statement which checks against version [5.6](https://secure.php.net/migration56.new-features) which introduces [argument unpacking using `...`](https://wiki.php.net/rfc/argument_unpacking) also known as the spread operator in JavaScript. The [`foreach`](https://secure.php.net/manual/en/control-structures.foreach.php) loop and [`call_user_func_array()`](https://secure.php.net/manual/en/function.call-user-func-array.php) used for older versions is referenced from [here at Stack Overflow](https://stackoverflow.com/questions/1913899/mysqli-binding-params-using-call-user-func-array).
+There is an `if-else` statement which checks against version [5.6](https://secure.php.net/migration56.new-features) which introduces [argument unpacking using `...`](https://wiki.php.net/rfc/argument_unpacking) also known as the spread operator in JavaScript. This is used in the `bind_param()` statement as explained by [this person at Stack Overflow](https://stackoverflow.com/a/40718151), who is the site owner of *phpdelusions.net*.
+
+The [`foreach`](https://secure.php.net/manual/en/control-structures.foreach.php) loop and [`call_user_func_array()`](https://secure.php.net/manual/en/function.call-user-func-array.php) used for older versions is referenced from [here at Stack Overflow](https://stackoverflow.com/a/35542447).
 
 There are also [`array()`](https://secure.php.net/manual/en/language.types.array.php#language.types.array.syntax.array-func) functions for compatibility with PHP before version [5.4](https://secure.php.net/migration54.new-features).
 
 
 
-### One more thing:
+### One more thing . . .
 
 There is a procedural version without using any class. This changes both making queries and using the `mysqli()` function.
 
