@@ -17,27 +17,14 @@ function pdo($pdo, $sql, $params = array()) {
         if (!$types) {
             $stmt->execute($params);
         } else {
-            if (preg_match("~[\:]+~", $sql)) {
+            if (is_array($types)) $types = array_combine(array_keys($params), $types);
+            foreach ($params as $key => &$value) {
+                if (preg_match("~[\:]+~", $sql)) {
+                    $bind = ':'.$key;
+                } elseif (preg_match("~[\?]+~", $sql)) $bind = $key+1;
                 if ($types === true) {
-                    foreach ($params as $key => &$value) {
-                        $stmt->bindParam(':'.$key, $value); // Default to bind as string.
-                    }
-                } else {
-                    $types = array_combine(array_keys($params), $types);
-                    foreach ($params as $key => &$value) {
-                        $stmt->bindParam(':'.$key, $value, $types[$key]);
-                    }
-                }
-            } elseif (preg_match("~[\?]+~", $sql)) {
-                if ($types === true) {
-                    foreach ($params as $key => &$value) {
-                        $stmt->bindParam($key+1, $value); // Default to bind as string.
-                    }
-                } else {
-                    foreach ($params as $key => &$value) {
-                        $stmt->bindParam($key+1, $value, $types[$key]);
-                    }
-                }
+                    $stmt->bindParam($bind, $value); // Default to bind as string.
+                } else $stmt->bindParam($bind, $value, $types[$key]);
             }
             $stmt->execute();
         }
