@@ -1,6 +1,6 @@
 # Object Oriented PDO Connection
 
-Object oriented PDO connection with 4 ways of performing queries.
+Object oriented PDO connection with at least 4 ways of performing queries.
 
 ## Introduction
 
