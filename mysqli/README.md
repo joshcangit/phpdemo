@@ -102,15 +102,17 @@ $ins_id = null;
 
 > **Note:**
 >
-> This function uses a `$params` **indexed/numeric array** instead of just variables. This can **only** work with [prepared statements](https://secure.php.net/manual/en/mysqli.quickstart.prepared-statements.php) in **MySQLi** using **only** *positional placeholders* with the *?* symbol.
+> This function uses a `$params` **indexed/numeric array** to allow use of any amount of variables. This can **only** work with [prepared statements](https://secure.php.net/manual/en/mysqli.quickstart.prepared-statements.php) in **MySQLi** using **only** *positional placeholders* with the *?* symbol.
 >
-> Using *positional parameters* require the elements in the **indexed/numeric array** to be in the **same order** as the order of the columns defined in the query.
+> Using *positional parameters* require the values in the **indexed/numeric array** to be in the **same order** as the order of the columns defined in the query.
 >
 > The problem with doing this is **MySQLi** cannot execute arrays as is. Therefore, the `$types` string used for [`bind_param()`](https://secure.php.net/manual/en/mysqli-stmt.bind-param.php) is to be specified as shown at function call.
 >
-> The **length** of the `$types` string needs to be the **same as** the **number of elements** in the `$params` array.
+> Each character of the `$types` string is to be any of the 4 specified in the `bind_param()` PHP Documentation.
 >
-> If the third argument of this `mysqli()` function, `$types`, is not defined, it will default to the type **s** as in *string* to bind each parameter which can break your query especially if any of the columns in the table specified in the query are of *int*, *double*, *string* or *blob* data type.
+> The **length**, *i.e.* `strlen()`, of the `$types` string needs to be the **equal to** the **number of values**, *i.e.* `count()`, of the `$params` array.
+>
+> If the third argument of this `mysqli()` function, `$types`, is not defined, it will default to the type **s** as in *string* to bind each parameter which can break your query especially if any of the columns in the table specified in the query are of *int*, *double*, or *blob* data type.
 >
 > As of PHP 5.4 you can also use the short array syntax, which replaces `array()` with `[]`.
 

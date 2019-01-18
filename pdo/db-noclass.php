@@ -13,8 +13,34 @@ function pdo($pdo, $sql, $params = array()) {
     if (!$params) {
         $stmt = $pdo->query($sql);
     } else {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
+        $stmt = $this->pdo->prepare($sql);
+        if (!$types) {
+            $stmt->execute($params);
+        } else {
+            if (preg_match("~[\:]+~", $sql)) {
+                if ($types === true) {
+                    foreach ($params as $key => &$value) {
+                        $stmt->bindParam(':'.$key, $value); // Default to bind as string.
+                    }
+                } else {
+                    $types = array_combine(array_keys($params), $types);
+                    foreach ($params as $key => &$value) {
+                        $stmt->bindParam(':'.$key, $value, $types[$key]);
+                    }
+                }
+            } elseif (preg_match("~[\?]+~", $sql)) {
+                if ($types === true) {
+                    foreach ($params as $key => &$value) {
+                        $stmt->bindParam($key+1, $value); // Default to bind as string.
+                    }
+                } else {
+                    foreach ($params as $key => &$value) {
+                        $stmt->bindParam($key+1, $value, $types[$key]);
+                    }
+                }
+            }
+            $stmt->execute();
+        }
     }
     return $stmt;
 }

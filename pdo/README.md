@@ -151,7 +151,13 @@ $stmt = null;
 
 > **Note:**
 >
-> Unlike **MySQLi**, binding parameters is not required since **PDO** can already execute arrays.
+> Unlike **MySQLi**, binding parameters is optional since **PDO** can already execute arrays.
+>
+> If you choose to bind parameters, you can add an **indexed/numeric array** as the third argument of this `pdo()` function with [**PDO::PARAM_*** constants](https://php.net/manual/en/pdo.constants.php) as its values.
+>
+> Both arrays have to be of the **same number of values**, *i.e.* same exact `count()`.
+>
+> If you simply define the third argument of this `pdo()` function instead as `true` (without quotes), then each parameter will be bound as string which will only work if **all** of the columns in the table specified in the query are of the *string* data type such as **varchar**.
 >
 > As of PHP 5.4 you can also use the short array syntax, which replaces `array()` with `[]`.
 
