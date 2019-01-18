@@ -1,6 +1,6 @@
 # Object Oriented PDO Connection
 
-Object oriented PDO connection with at least 4 ways of performing queries.
+Object oriented PDO connection with multiple ways of performing queries.
 
 ## Introduction
 
@@ -23,19 +23,19 @@ Even so, [supported PHP versions](https://secure.php.net/supported-versions.php)
 require_once 'db.php';
 $db = new DB;
 
-// using a named parameter with single value returned
-$stmt = $db->pdo->prepare("SELECT * FROM users WHERE username=:name");
-$stmt->execute([ 'name' => $username ]);
+// using a named parameter and showing single value
+$stmt = $db->pdo->prepare("SELECT * FROM users WHERE name=:name");
+$stmt->execute([ 'name' => $name ]);
 $user = $stmt->fetch();
 $stmt = null;
-print_r($user);
+echo $user['name'];
 
-// using a positional parameter with single value returned
-$stmt = $db->pdo->prepare("SELECT * FROM users WHERE username=?");
-$stmt->execute([$username]);
+// using a positional parameter and showing single value
+$stmt = $db->pdo->prepare("SELECT * FROM users WHERE name=?");
+$stmt->execute([$name]);
 $user = $stmt->fetch();
 $stmt = null;
-print_r($user);
+echo $user['name'];
 
 // without variables and getting multiple rows
 $result = $db->pdo->query("SELECT * FROM users ORDER BY id ASC");
@@ -46,19 +46,19 @@ $result = null;
 print_r($users);
 
 //insert using named parameters with getting insert id
-$stmt = $this->pdo->prepare("INSERT INTO users(username, password, email) VALUES (:username, :password, :email)");
+$stmt = $this->pdo->prepare("INSERT INTO users(name, contact, email) VALUES (:name, :contact, :email)");
 $array = [
     'email' => $email,
-    'username' => $username,
-    'password' => $password
+    'name' => $name,
+    'contact' => $contact
 ];
 $stmt->execute($array);
 echo $stmt->lastInsertId;
 $stmt = null;
 
 //insert using positional parameters with getting insert id
-$stmt = $this->pdo->prepare("INSERT INTO users(username, password, email) VALUES (?, ?, ?)");
-$array = [$username, $password, $email];
+$stmt = $this->pdo->prepare("INSERT INTO users(name, contact, email) VALUES (?, ?, ?)");
+$array = [$name, $contact, $email];
 $stmt->execute($array);
 echo $stmt->lastInsertId;
 $stmt = null;
@@ -85,9 +85,9 @@ $stmt = null;
 ```php
 <?php
 class User extends DB {
-    function signup($username, $password, $email) {
+    function signup($name, $contact, $email) {
         //insert with getting insert id
-        $stmt = $this->pdo->prepare("INSERT INTO users(username, password, email) VALUES (?, ?, ?)");
+        $stmt = $this->pdo->prepare("INSERT INTO users(name, contact, email) VALUES (?, ?, ?)");
         $stmt->execute();
         return $stmt->insert_id;
         $stmt->close();
@@ -104,7 +104,7 @@ require_once 'db.php'
 require_once 'user.php'
 $inst = new User;
 //Function call
-$new_user = signup($username, $password, $email);
+$new_user = signup($name, $contact, $email);
 echo $new_user;
 ```
 
@@ -117,13 +117,18 @@ echo $new_user;
 require_once 'db.php';
 $db = new DB;
 
-// using a named parameter with single value returned
-$user = $db->pdo("SELECT * FROM users WHERE username=:name", [ 'name' => $username ])->fetch();
-print_r($user);
+// using a named parameter and showing single value
+$user = $db->pdo("SELECT * FROM users WHERE name=:name", [ 'name' => $name ])->fetch();
+echo $user['name'];
 
-// using a positional parameter with single value returned
-$user = $db->pdo("SELECT * FROM users WHERE username=?", [$username])->fetch();
+// with named parameters with binding and 1 row returned
+$user = $db->pdo("SELECT * FROM users WHERE name=? OR email=?", [$name, $email], true)->fetch();
 print_r($user);
+$user = null;
+
+// using a positional parameter and showing single value
+$user = $db->pdo("SELECT * FROM users WHERE name=?", [$name])->fetch();
+echo $user['name'];
 
 // without variables and getting multiple rows
 $result = $db->pdo("SELECT * FROM users ORDER BY id ASC");
@@ -136,15 +141,20 @@ print_r($users);
 //insert using named parameters with getting insert id
 $array = [
     'email' => $email,
-    'username' => $username,
-    'password' => $password
+    'name' => $name,
+    'contact' => $contact
 ];
-$stmt = $this->pdo("INSERT INTO users(username, password, email) VALUES (:username, :password, :email)", $array);
+$stmt = $this->pdo("INSERT INTO users(name, contact, email) VALUES (:name, :contact, :email)", $array);
 echo $stmt->lastInsertId;
 $stmt = null;
 
 //insert using positional parameters with getting insert id
-$stmt = $this->pdo("INSERT INTO users(username, password, email) VALUES (?, ?, ?)", [$username, $password, $email]);
+$stmt = $this->pdo("INSERT INTO users(name, contact, email) VALUES (?, ?, ?)", [$name, $contact, $email]);
+echo $stmt->lastInsertId;
+$stmt = null;
+
+//insert using positional parameters with binding and getting insert id
+$stmt = $this->pdo("INSERT INTO users(name, contact, email) VALUES (?, ?, ?)", [$name, $contact, $email], [PDO::PARAM_STR,PDO::PARAM_INT,PDO::PARAM_STR]);
 echo $stmt->lastInsertId;
 $stmt = null;
 ```
@@ -153,11 +163,11 @@ $stmt = null;
 >
 > Unlike **MySQLi**, binding parameters is optional since **PDO** can already execute arrays.
 >
-> If you choose to bind parameters, you can add an **indexed/numeric array** as the third argument of this `pdo()` function with [**PDO::PARAM_*** constants](https://php.net/manual/en/pdo.constants.php) as its values.
+> If you choose to bind parameters, you can add a `$types` array as the third argument of this `pdo()` function with [**PDO::PARAM_*** constants](https://php.net/manual/en/pdo.constants.php) as its values.
 >
-> Both arrays have to be of the **same number of values**, *i.e.* same exact `count()`.
+> Both arrays have to be of the **same number of values**, *i.e.* same exact `count()`. The position of each value, *i.e.* `strpos()`, in the `$types` array corresponds to the position of each value, *i.e.* `array_search()`, in the `$params` array.
 >
-> If you simply define the third argument of this `pdo()` function instead as `true` (without quotes), then each parameter will be bound as string which will only work if **all** of the columns in the table specified in the query are of the *string* data type such as **varchar**.
+> If you simply define the third argument of this `pdo()` function instead as `true` (without quotes), then each parameter will be bound as string which will only work if **all** of the parameters in the query are of the *string* data type such as **char**, **varchar** or **text**.
 >
 > As of PHP 5.4 you can also use the short array syntax, which replaces `array()` with `[]`.
 
@@ -165,7 +175,7 @@ $stmt = null;
 
 ```php
 //insert using positional parameters with getting insert id
-$stmt = $this->pdo("INSERT INTO customers(username, password, email) VALUES (?, ?, ?)", array($username, $password, $email);
+$stmt = $this->pdo("INSERT INTO customers(name, contact, email) VALUES (?, ?, ?)", array($name, $contact, $email);
 echo $stmt->lastInsertId;
 $stmt = null;
 ```
@@ -191,12 +201,12 @@ Rename the **db-noclass.php** file to **db.php**.
 ```php
 <?php
 require_once 'db.php';
-// with a variables and single value returned
-$stmt = $pdo->prepare("SELECT * FROM users WHERE username='$username'");
+// with a variables and showing single value
+$stmt = $pdo->prepare("SELECT * FROM users WHERE name='$name'");
 $stmt->execute();
 $user = $stmt->fetch();
 $stmt = null;
-print_r($user);
+echo $user['name'];
 ```
 
 ### Using the provided `pdo()` function
@@ -207,15 +217,23 @@ This is without using a class.
 <?php
 require_once 'db.php';
 
-// using a named parameter with single value returned
-$stmt = pdo($pdo, "SELECT * FROM users WHERE username=:name", [ 'name' => $username ]);
+// using a named parameter and showing single value
+$stmt = pdo($pdo, "SELECT * FROM users WHERE name=:name", [ 'name' => $name ]);
 $user = $stmt->fetch();
+$stmt = null;
+echo $user['name'];
+
+// with named parameters with binding and 1 row returned
+$stmt = pdo($pdo, "SELECT * FROM users WHERE name=? OR email=?", [$name, $email], true);
+$user = $stmt->fetch();
+$stmt = null;
 print_r($user);
 
-// using a positional parameter with single value returned
-$stmt = pdo($pdo, "SELECT * FROM users WHERE username=?", [$username]);
+// using a positional parameter and showing single value
+$stmt = pdo($pdo, "SELECT * FROM users WHERE name=?", [$name]);
 $user = $stmt->fetch();
-print_r($user);
+$stmt = null;
+echo $user['name'];
 
 // without variables and getting multiple rows
 $result = pdo($pdo, "SELECT * FROM users ORDER BY id ASC");
@@ -228,15 +246,20 @@ print_r($users);
 //insert using named parameters with getting insert id
 $array = [
     'email' => $email,
-    'username' => $username,
-    'password' => $password
+    'name' => $name,
+    'contact' => $contact
 ];
-$stmt = pdo($pdo, "INSERT INTO users(username, password, email) VALUES (:username, :password, :email)", $array);
+$stmt = pdo($pdo, "INSERT INTO users(name, contact, email) VALUES (:name, :contact, :email)", $array);
 echo $stmt->lastInsertId;
 $stmt = null;
 
 //insert using positional parameters with getting insert id
-$stmt = pdo($pdo, "INSERT INTO users(username, password, email) VALUES (?, ?, ?)", [$username, $password, $email]);
+$stmt = pdo($pdo, "INSERT INTO users(name, contact, email) VALUES (?, ?, ?)", [$name, $contact, $email]);
+echo $stmt->lastInsertId;
+$stmt = null;
+
+//insert using positional parameters with binding and getting insert id
+$stmt = pdo($pdo, "INSERT INTO users(name, contact, email) VALUES (?, ?, ?)", [$name, $contact, $email], [PDO::PARAM_STR,PDO::PARAM_INT,PDO::PARAM_STR]);
 echo $stmt->lastInsertId;
 $stmt = null;
 ```
