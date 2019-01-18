@@ -1,6 +1,6 @@
 # Object Oriented MySQLi Connection
 
-Object oriented MySQLi connection with at least 4 ways of performing queries.
+Object oriented MySQLi connection with multiple ways of performing queries.
 
 ## Introduction
 
@@ -19,12 +19,12 @@ Although this code *should* function in earlier versions of PHP, it is recommend
 require_once 'db.php';
 $db = new DB;
 
-// with a variables and single value returned
-$stmt = $db->mysqli->prepare("SELECT * FROM users WHERE username='$username'");
+// with a variables and showing single value
+$stmt = $db->mysqli->prepare("SELECT * FROM users WHERE name='$name'");
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
-print_r($user);
+echo $user['name'];
 
 // without variables and getting multiple rows
 $result = $db->mysqli->query("SELECT * FROM users ORDER BY id ASC");
@@ -42,9 +42,9 @@ print_r($users);
 ```php
 <?php
 class User extends DB {
-    function signup($username, $password, $email) {
+    function signup($name, $contact, $email) {
         //insert with getting insert id
-        $stmt = $this->mysqli->prepare("INSERT INTO users(username, password, email) VALUES ('$username', '$password', '$email')");
+        $stmt = $this->mysqli->prepare("INSERT INTO users(name, contact, email) VALUES ('$name', '$contact', '$email')");
         $stmt->execute();
         return $stmt->insert_id;
         $stmt->close();
@@ -61,7 +61,7 @@ require_once 'db.php'
 require_once 'user.php'
 $inst = new User;
 //Function call
-$new_user = signup($username, $password, $email);
+$new_user = signup($name, $contact, $email);
 echo $new_user;
 ```
 
@@ -77,13 +77,13 @@ require_once 'db.php';
 $db = new DB;
 
 // with 2 variables and 1 row returned
-$user = $db->mysqli("SELECT * FROM users WHERE username=? OR email=?", [$username, $email], "ss")->get_result()->fetch_row();
+$user = $db->mysqli("SELECT * FROM users WHERE name=? OR email=?", [$name, $email])->get_result()->fetch_row();
 print_r($user);
 $user = null;
 
-// with 1 variable and single value returned
-$user = $db->mysqli("SELECT * FROM users WHERE username=?", [$username], "s")->get_result()->fetch_assoc();
-print_r($user);
+// with 1 variable and showing single value
+$user = $db->mysqli("SELECT * FROM users WHERE name=?", [$name])->get_result()->fetch_assoc();
+echo $user['name'];
 $user = null;
 
 // without variables and getting multiple rows
@@ -95,7 +95,7 @@ $stmt->close();
 print_r($users);
 
 //insert with getting insert id
-$ins_id = $db->mysqli("INSERT INTO users(username, password, email) VALUES (?, ?, ?)", [$username, $password, $email], "sss")->insert_id;
+$ins_id = $db->mysqli("INSERT INTO users(name, contact, email) VALUES (?, ?, ?)", [$name, $contact, $email], "sis")->insert_id;
 echo $ins_id;
 $ins_id = null;
 ```
@@ -104,15 +104,15 @@ $ins_id = null;
 >
 > This function uses a `$params` **indexed/numeric array** to allow use of any amount of variables. This can **only** work with [prepared statements](https://secure.php.net/manual/en/mysqli.quickstart.prepared-statements.php) in **MySQLi** using **only** *positional placeholders* with the *?* symbol.
 >
-> Using *positional parameters* require the values in the **indexed/numeric array** to be in the **same order** as the order of the columns defined in the query.
+> Using *positional parameters* require the values in the `$params` **indexed/numeric array** to be in the **same order** as the order of the columns defined in the query.
 >
-> The problem with doing this is **MySQLi** cannot execute arrays as is. Therefore, the `$types` string used for [`bind_param()`](https://secure.php.net/manual/en/mysqli-stmt.bind-param.php) is to be specified as shown at function call.
+> The problem with doing this is **MySQLi** cannot execute arrays as is. Therefore, the `$types` string used for `bind_param()` is to be specified as shown at function call.
 >
-> Each character of the `$types` string is to be any of the 4 specified in the `bind_param()` PHP Documentation.
+> Each character of the `$types` string is to be any of the 4 specified in the [`bind_param()` PHP Documentation](https://secure.php.net/manual/en/mysqli-stmt.bind-param.php).
 >
-> The **length**, *i.e.* `strlen()`, of the `$types` string needs to be the **equal to** the **number of values**, *i.e.* `count()`, of the `$params` array.
+> The **length**, *i.e.* `strlen()`, of the `$types` string needs to be the **equal to** the **number of values**, *i.e.* `count()`, of the `$params` array. The position of each character, *i.e.* `strpos()`, in the `$types` string corresponds to the position of each value, *i.e.* `array_search()`, in the `$params` array.
 >
-> If the third argument of this `mysqli()` function, `$types`, is not defined, it will default to the type **s** as in *string* to bind each parameter which can break your query especially if any of the columns in the table specified in the query are of *int*, *double*, or *blob* data type.
+> If the third argument of this `mysqli()` function, *i.e.* `$types`, is not defined, it will default to the type **s** as in *string* to bind each parameter which will only work if **all** of the parameters in the query are of the *string* data type such as **char**, **varchar** or **text**.
 >
 > As of PHP 5.4 you can also use the short array syntax, which replaces `array()` with `[]`.
 
@@ -120,7 +120,7 @@ $ins_id = null;
 
 ```php
 //insert with getting insert id
-$stmt = $this->mysqli("INSERT INTO users(username, password, email) VALUES (?, ?, ?)", array($username, $password, $email), "sss");
+$stmt = $this->mysqli("INSERT INTO users(name, contact, email) VALUES (?, ?, ?)", array($name, $contact, $email), "sis");
 $ins_id = $stmt->insert_id;
 $stmt->close();
 echo $ins_id;
@@ -154,23 +154,23 @@ require_once 'db.php';
 #### Object oriented style
 
 ```php
-// with a variables and single value returned
-$stmt = $mysqli->prepare("SELECT * FROM users WHERE username='$username'");
+// with a variables and showing single value
+$stmt = $mysqli->prepare("SELECT * FROM users WHERE name='$name'");
 $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
-print_r($user);
+echo $user['name'];
 ```
 
 #### Procedural style
 
 ```php
-// with a variables and single value returned
-$stmt = mysqli_prepare($mysqli, "SELECT * FROM users WHERE username='$username'");
+// with a variables and showing single value
+$stmt = mysqli_prepare($mysqli, "SELECT * FROM users WHERE name='$name'");
 mysqli_stmt_execute($stmt);
 $user = mysqli_fetch_assoc(mysqli_stmt_get_result($stmt));
 mysqli_stmt_close($stmt);
-print_r($user);
+echo $user['name'];
 ```
 
 ### Using the provided `mysqli()` function
@@ -179,16 +179,16 @@ This is one is more closer to the code in [Mysqli made simple](https://phpdelusi
 
 ```php
 // with 2 variables and 1 row returned
-$stmt = mysqli($mysqli, "SELECT * FROM users WHERE username=? OR email=?", [$username, $email], "ss");
+$stmt = mysqli($mysqli, "SELECT * FROM users WHERE name=? OR email=?", [$name, $email]);
 $user = $stmt->get_result()->fetch_row();
 $stmt->close();
 print_r($user);
 
-// with 1 variable and single value returned
-$stmt = mysqli($mysqli, "SELECT * FROM users WHERE username=?", [$username], "s");
+// with 1 variable and showing single value
+$stmt = mysqli($mysqli, "SELECT * FROM users WHERE name=?", [$name]);
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
-print_r($user);
+echo $user['name'];
 
 // without variables and getting multiple rows
 $result = mysqli($mysqli, "SELECT * FROM users ORDER BY id ASC");
@@ -199,7 +199,7 @@ $result->close();
 print_r($users);
 
 //insert with getting insert id
-$stmt = mysqli($mysqli, "INSERT INTO users(username, password, email) VALUES (?, ?, ?)", [$username, $password, $email], "sss");
+$stmt = mysqli($mysqli, "INSERT INTO users(name, contact, email) VALUES (?, ?, ?)", [$name, $contact, $email], "sis");
 $ins_id = $stmt->insert_id;
 $stmt->close();
 echo $ins_id;
